@@ -18,8 +18,8 @@ from Products.ZenUtils.Utils import executeStreamCommand
 import cgi, time
 
 #Templates for the command
-vmwareGuestPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'guestperf:${here/id}'")
-vmwareHostPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'hostperf:${dev/name}'")
+vmwareGuestPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'guestperf:${here/id}' 2> /dev/null")
+vmwareHostPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'hostperf:${dev/id}' 2> /dev/null")
 vmwareDiskPerftemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/name} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options '%s:%s'")
 
 class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
