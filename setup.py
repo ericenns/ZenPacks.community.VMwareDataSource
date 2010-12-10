@@ -2,15 +2,15 @@
 # These variables are overwritten by Zenoss when the ZenPack is exported
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
-NAME = 'ZenPacks.community.VMwareDataSource'
-VERSION = '1.0'
-AUTHOR = 'Eric Enns'
-LICENSE = ''
+NAME = "ZenPacks.community.VMwareDataSource"
+VERSION = "1.1.1"
+AUTHOR = "Eric Enns"
+LICENSE = ""
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.community']
 PACKAGES = ['ZenPacks', 'ZenPacks.community', 'ZenPacks.community.VMwareDataSource']
 INSTALL_REQUIRES = []
-COMPAT_ZENOSS_VERS = '>=2.5.2'
-PREV_ZENPACK_NAME = ''
+COMPAT_ZENOSS_VERS = ">=2.5.2"
+PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
 ################################
 # Zenoss will not overwrite any changes you make below here.
