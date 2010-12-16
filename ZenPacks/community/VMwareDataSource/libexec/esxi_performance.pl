@@ -47,16 +47,27 @@ eval
 	if ($options =~ /^guestperf:(.*)$/)
 	{
 		my $vmname = $1;
-		my $memUsage = vm_info($vmname, 'mem', 'usage', 'minimum');
-		my $memOverhead = vm_info($vmname, 'mem', 'overhead', 'minimum');
-		my $memConsumed = vm_info($vmname, 'mem', 'consumed', 'minimum');
-        my $diskUsage = vm_info($vmname, 'disk', 'usage', 'average');
-		my $cpuUsageMin = vm_info($vmname, 'cpu', 'usage', 'minimum');
-        my $cpuUsageMax = vm_info($vmname, 'cpu', 'usage', 'maximum');
-		my $cpuUsageAvg = vm_info($vmname, 'cpu', 'usage', 'average');
-        my $cpuUsage = vm_info($vmname, 'cpu', 'usagemhz', 'average');
+		my $values;
+		my $vm_view = Vim::find_entity_views(view_type => 'VirtualMachine', filter => {name => $vmname}, properties => [ 'name', 'runtime.powerState' ]);
+    	die "Runtime error\n" if (!defined($vm_view));
+    	die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
+		if ($$vm_view[0]->get_property('runtime.powerState')->val eq "poweredOff")
+		{
+			print "guestperf|memUsage= memOverhead= memConsumed= diskUsage= cpuUsageMin= cpuUsageMax= cpuUsageAvg= cpuUsage=\n";
+		}
+		else
+		{
+			my $memUsage = vm_info($vm_view, 'mem', 'usage', 'minimum');
+			my $memOverhead = vm_info($vm_view, 'mem', 'overhead', 'minimum');
+			my $memConsumed = vm_info($vm_view, 'mem', 'consumed', 'minimum');
+        	my $diskUsage = vm_info($vm_view, 'disk', 'usage', 'average');
+			my $cpuUsageMin = vm_info($vm_view, 'cpu', 'usage', 'minimum');
+        	my $cpuUsageMax = vm_info($vm_view, 'cpu', 'usage', 'maximum');
+			my $cpuUsageAvg = vm_info($vm_view, 'cpu', 'usage', 'average');
+       		my $cpuUsage = vm_info($vm_view, 'cpu', 'usagemhz', 'average');
 
-		print "guestperf|memUsage=".$memUsage." memOverhead=".$memOverhead." memConsumed=".$memConsumed." diskUsage=".$diskUsage." cpuUsageMin=".$cpuUsageMin." cpuUsageMax=".$cpuUsageMax." cpuUsageAvg=".$cpuUsageAvg." cpuUsage=".$cpuUsage."\n";
+			print "guestperf|memUsage=".$memUsage." memOverhead=".$memOverhead." memConsumed=".$memConsumed." diskUsage=".$diskUsage." cpuUsageMin=".$cpuUsageMin." cpuUsageMax=".$cpuUsageMax." cpuUsageAvg=".$cpuUsageAvg." cpuUsage=".$cpuUsage."\n";
+		}
 	}
 	elsif ($options =~ /^hostperf:(.*)$/)
 	{
@@ -155,11 +166,11 @@ sub get_performance_values
 sub get_vm_performance_values
 {
 	my $values;
-	my $vmname = shift(@_);
-	my $vm_view = Vim::find_entity_views(view_type => 'VirtualMachine', filter => {name => $vmname}, properties => [ 'name', 'runtime.powerState' ]);
-	die "Runtime error\n" if (!defined($vm_view));
-	die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
-	die "VMware machine \"" . $vmname . "\" is not running. Current state is \"" . $$vm_view[0]->get_property('runtime.powerState')->val . "\"\n" if ($$vm_view[0]->get_property('runtime.powerState')->val ne "poweredOn");
+	my $vm_view = shift(@_);
+	#my $vm_view = Vim::find_entity_views(view_type => 'VirtualMachine', filter => {name => $vmname}, properties => [ 'name', 'runtime.powerState' ]);
+	#die "Runtime error\n" if (!defined($vm_view));
+	#die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
+	#die "VMware machine \"" . $vmname . "\" is not running. Current state is \"" . $$vm_view[0]->get_property('runtime.powerState')->val . "\"\n" if ($$vm_view[0]->get_property('runtime.powerState')->val ne "poweredOn");
 	$values = get_performance_values($vm_view, @_);
 
 	return $@ if ($@);
