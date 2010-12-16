@@ -1,3 +1,0 @@
-[zenoss.zenpacks]
-ZenPacks.community.VMwareDataSource = ZenPacks.community.VMwareDataSource
-
