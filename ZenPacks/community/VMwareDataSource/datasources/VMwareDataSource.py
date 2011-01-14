@@ -20,7 +20,7 @@ import cgi, time
 #Templates for the command
 vmwareGuestPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'guestperf:${here/id}' | tail -n1")
 vmwareHostPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'hostperf:${dev/id}' | tail -n1")
-vmwareInterfacePerftemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/name} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'interfaceperf:${dev/id}:vmnic0' | tail -n1")
+vmwareInterfacePerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/name} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'interfaceperf:${dev/id}:vmnic0' | tail -n1")
 
 class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 
@@ -37,24 +37,24 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 	_properties = RRDDataSource.RRDDataSource._properties + (
 		{'id':'performanceSource', 'type':'string', 'mode':'w'},
 		{'id':'instance', 'type':'string', 'mode':'w'},
-		)
+	)
 
 	_relations = RRDDataSource.RRDDataSource._relations + (
-		)
+	)
 
 	# Screen action bindings (and tab definitions)
 	factory_type_information = (
-	{
-		'immediate_view' : 'editVMwareDataSource',
-		'actions' 		 :
-		(
-			{ 'id'			: 'edit'
-			, 'name'		: 'Data Source'
-			, 'action'		: 'editVMwareDataSource'
-			, 'permissions'	: ( Permissions.view, )
-			},
-		)
-	},
+		{
+			'immediate_view' : 'editVMwareDataSource',
+			'actions' 		 :
+			(
+				{ 'id'			: 'edit'
+				, 'name'		: 'Data Source'
+				, 'action'		: 'editVMwareDataSource'
+				, 'permissions'	: ( Permissions.view, )
+				},
+			)
+		},
 	)
 
 	security = ClassSecurityInfo()
@@ -91,6 +91,7 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 				dpid = self.prepId(dp)
 				if not self.datapoints._getOb(dpid, None):
 					self.datapoints.manage_addRRDDataPoint(dpid)	
+
 	#this method is called after the datasource is created and also when you click edit
 	#datasource I believe
 	def zmanage_editProperties(self, REQUEST=None):
@@ -156,13 +157,12 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 		elif self.performanceSource == "VMwareHost":
 			cmd = vmwareHostPerfTemplate
 		elif self.performanceSource == "VMwareNic":
-			cmd = vmwareInterfacePerfTemplate
+			cmd = vmwareHostPerfTemplate
 		cmd = RRDDataSource.RRDDataSource.getCommand(self, context, cmd)
 		return cmd
 
 	#this method is used to test the datasource in the edit datasource window
 	def testDataSourceAgainstDevice(self, testDevice, REQUEST, write, errorLog):
-
 		out = REQUEST.RESPONSE
 		# Determine which device to execute against
 		device = None
@@ -208,17 +208,17 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 			command = self.getCommand(device)
 		else:
 			errorLog(
-                'Test Failure',
-                'Unable to test %s datasources' % self.sourcetype,
-                priority=messaging.WARNING
-            )
+				'Test Failure',
+				'Unable to test %s datasources' % self.sourcetype,
+				priority=messaging.WARNING
+			)
 			return self.callZenScreen(REQUEST)
 		if not command:
 			errorLog(
-                'Test Failure',
-                'Unable to create test command.',
-                priority=messaging.WARNING
-            )
+				'Test Failure',
+				'Unable to create test command.',
+				priority=messaging.WARNING
+			)
 			return self.callZenScreen(REQUEST)
 
 		write('Executing command %s against %s' %(command, device.id))
@@ -262,3 +262,4 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 
 		errorLog = messaging.IMessageSender(self).sendToBrowser
 		return self.testDataSourceAgainstDevice(testDevice, REQUEST, write, errorLog)
+
