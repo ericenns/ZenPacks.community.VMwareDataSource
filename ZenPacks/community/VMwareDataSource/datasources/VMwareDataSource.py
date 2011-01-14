@@ -20,7 +20,7 @@ import cgi, time
 #Templates for the command
 vmwareGuestPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'guestperf:${here/id}' | tail -n1")
 vmwareHostPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'hostperf:${dev/id}' | tail -n1")
-vmwareDiskPerftemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/name} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options '%s:%s'")
+vmwareInterfacePerftemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/name} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'interfaceperf:${dev/id}:vmnic0' | tail -n1")
 
 class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 
@@ -71,6 +71,7 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 	def addDataPoints(self):
 		guest = ['memUsage','memOverhead','memConsumed','diskUsage','cpuUsageMin','cpuUsageMax','cpuUsageAvg','cpuUsage']
 		host = ['sysUpTime','memSwapused','memGranted','memActive','diskUsage','cpuUsagemhz','cpuUsage','cpuReservedcapacity']
+		interface = ['nicRx','nicTx']
 
 		if self.id == "VMwareGuest":
 			self.performanceSource = "VMwareGuest"
@@ -83,8 +84,13 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 			for dp in host:
 				dpid = self.prepId(dp)
 				if not self.datapoints._getOb(dpid, None):
-					self.datapoints.manage_addRRDDataPoint(dpid)
-	
+					self.datapoints.manage_addRRDDataPoint(dpid)	
+		elif self.id == "VMwareNic":
+			self.performanceSource = "VMwareNic"
+			for dp in interface:
+				dpid = self.prepId(dp)
+				if not self.datapoints._getOb(dpid, None):
+					self.datapoints.manage_addRRDDataPoint(dpid)	
 	#this method is called after the datasource is created and also when you click edit
 	#datasource I believe
 	def zmanage_editProperties(self, REQUEST=None):
@@ -149,6 +155,8 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 			cmd = vmwareGuestPerfTemplate
 		elif self.performanceSource == "VMwareHost":
 			cmd = vmwareHostPerfTemplate
+		elif self.performanceSource == "VMwareNic":
+			cmd = vmwareInterfacePerfTemplate
 		cmd = RRDDataSource.RRDDataSource.getCommand(self, context, cmd)
 		return cmd
 

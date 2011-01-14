@@ -77,21 +77,22 @@ eval
         my $memGranted = host_info('mem', 'granted', 'maximum', $esxi);
         my $memActive = host_info('mem', 'active', 'maximum', $esxi);
         my $diskUsage = host_info('disk', 'usage', 'average', $esxi);
-        my $cpuUsagemhz = host_info('cpu', 'usagemhz', 'average', $esxi);
+		my $cpuUsagemhz = host_info('cpu', 'usagemhz', 'average', $esxi);
         my $cpuUsage = host_info('cpu', 'usage', 'average', $esxi);
         my $cpuReservedcapacity = host_info('cpu', 'reservedCapacity', 'average', $esxi);
 
 		print "hostperf|sysUpTime=".$sysUpTime." memSwapused=".$memSwapused." memGranted=".$memGranted." memActive=".$memActive." diskUsage=".$diskUsage." cpuUsagemhz=".$cpuUsagemhz." cpuUsage=".$cpuUsage." cpuReservedcapacity=".$cpuReservedcapacity."\n";
 	}
-	#if (defined($vmname))
-	#{
-	#	$output = vm_info($vmname, $group_type, $counter, $rollup_type);
-	#}
-	#elsif (defined($host))
-	#{
-	#	my $esxi = {name => $host};
-	#	$output = host_info($group_type, $counter, $rollup_type, $esxi);
-	#}
+	elsif ($options =~ /^interfaceperf:(.*):(.*)$/)
+	{
+		my $esxi = {name => $1};
+		my $nic = $2;
+
+		my $nicReceived = net_info('net', 'received', 'average', $nic, $esxi);
+		my $nicTransmitted = net_info('net', 'transmitted', 'average', $nic, $esxi);
+
+		print "interfaceperf|nicRx=$nicReceived nicTx=$nicTransmitted\n";
+	}
 };
 
 Util::disconnect();
@@ -167,10 +168,6 @@ sub get_vm_performance_values
 {
 	my $values;
 	my $vm_view = shift(@_);
-	#my $vm_view = Vim::find_entity_views(view_type => 'VirtualMachine', filter => {name => $vmname}, properties => [ 'name', 'runtime.powerState' ]);
-	#die "Runtime error\n" if (!defined($vm_view));
-	#die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
-	#die "VMware machine \"" . $vmname . "\" is not running. Current state is \"" . $$vm_view[0]->get_property('runtime.powerState')->val . "\"\n" if ($$vm_view[0]->get_property('runtime.powerState')->val ne "poweredOn");
 	$values = get_performance_values($vm_view, @_);
 
 	return $@ if ($@);
@@ -196,11 +193,12 @@ sub vm_info
 	my ($vmname, $group_type, $counter, $rollup_type) = @_;
 	
 	$values = get_vm_performance_values($vmname, $group_type, ($counter.".".$rollup_type));
-	if (defined($values))
+	if (defined($values) && scalar @$values > 0)
 	{
 		my ( $t ) = split(/,/, $$values[0][0]->value);
         return $t;
 	}
+	return "";
 }
 
 #===================================| Host |==================================#
@@ -210,10 +208,26 @@ sub host_info
 	my ($group_type, $counter, $rollup_type, $host) = @_;
 
         $values = get_host_performance_values($host, $group_type, ($counter.".".$rollup_type));
-        if (defined($values))
+        if (defined($values) && scalar @$values > 0)
         {
 				my ( $t ) = split(/,/, $$values[0][0]->value);
                 return $t;
         }
+		return "";
+}
+
+#===================================| Net |===================================#
+
+sub net_info
+{
+	my ($group_type, $counter, $rollup_type, $nic, $host) = @_;
+
+		$values = get_host_performance_values($host, $group_type, ($counter.".".$rollup_type.":".$nic));
+		if (defined($values) && scalar @$values > 0)
+		{
+			my ($t) = split(/,/, $$values[0][0]->value);
+			return $t;
+		}
+		return "";
 }
 
