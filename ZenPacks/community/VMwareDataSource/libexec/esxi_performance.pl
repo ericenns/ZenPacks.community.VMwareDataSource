@@ -23,9 +23,9 @@ my %opts = (
 	},
 	options => {
 		type => "=s",
-        variable => "VI_OPTIONS",
-        help => "Query Options",
-        required => 1,
+		variable => "VI_OPTIONS",
+		help => "Query Options",
+		required => 1,
 	},
 );
 
@@ -49,8 +49,8 @@ eval
 		my $vmname = $1;
 		my $values;
 		my $vm_view = Vim::find_entity_views(view_type => 'VirtualMachine', filter => {name => $vmname}, properties => [ 'name', 'runtime.powerState' ]);
-    	die "Runtime error\n" if (!defined($vm_view));
-    	die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
+		die "Runtime error\n" if (!defined($vm_view));
+		die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
 		if ($$vm_view[0]->get_property('runtime.powerState')->val eq "poweredOff")
 		{
 			print "guestperf|memUsage= memOverhead= memConsumed= diskUsage= cpuUsageMin= cpuUsageMax= cpuUsageAvg= cpuUsage=\n";
@@ -60,11 +60,11 @@ eval
 			my $memUsage = vm_info($vm_view, 'mem', 'usage', 'minimum');
 			my $memOverhead = vm_info($vm_view, 'mem', 'overhead', 'minimum');
 			my $memConsumed = vm_info($vm_view, 'mem', 'consumed', 'minimum');
-        	my $diskUsage = vm_info($vm_view, 'disk', 'usage', 'average');
+			my $diskUsage = vm_info($vm_view, 'disk', 'usage', 'average');
 			my $cpuUsageMin = vm_info($vm_view, 'cpu', 'usage', 'minimum');
-        	my $cpuUsageMax = vm_info($vm_view, 'cpu', 'usage', 'maximum');
+			my $cpuUsageMax = vm_info($vm_view, 'cpu', 'usage', 'maximum');
 			my $cpuUsageAvg = vm_info($vm_view, 'cpu', 'usage', 'average');
-       		my $cpuUsage = vm_info($vm_view, 'cpu', 'usagemhz', 'average');
+			my $cpuUsage = vm_info($vm_view, 'cpu', 'usagemhz', 'average');
 
 			print "guestperf|memUsage=".$memUsage." memOverhead=".$memOverhead." memConsumed=".$memConsumed." diskUsage=".$diskUsage." cpuUsageMin=".$cpuUsageMin." cpuUsageMax=".$cpuUsageMax." cpuUsageAvg=".$cpuUsageAvg." cpuUsage=".$cpuUsage."\n";
 		}
@@ -73,13 +73,13 @@ eval
 	{
 		my $esxi = {name => $1};
 		my $sysUpTime = host_info('sys', 'uptime', 'latest',$esxi) * 100;
-        my $memSwapused = host_info('mem', 'swapused', 'maximum', $esxi);
-        my $memGranted = host_info('mem', 'granted', 'maximum', $esxi);
-        my $memActive = host_info('mem', 'active', 'maximum', $esxi);
-        my $diskUsage = host_info('disk', 'usage', 'average', $esxi);
+		my $memSwapused = host_info('mem', 'swapused', 'maximum', $esxi);
+		my $memGranted = host_info('mem', 'granted', 'maximum', $esxi);
+		my $memActive = host_info('mem', 'active', 'maximum', $esxi);
+		my $diskUsage = host_info('disk', 'usage', 'average', $esxi);
 		my $cpuUsagemhz = host_info('cpu', 'usagemhz', 'average', $esxi);
-        my $cpuUsage = host_info('cpu', 'usage', 'average', $esxi);
-        my $cpuReservedcapacity = host_info('cpu', 'reservedCapacity', 'average', $esxi);
+		my $cpuUsage = host_info('cpu', 'usage', 'average', $esxi);
+		my $cpuReservedcapacity = host_info('cpu', 'reservedCapacity', 'average', $esxi);
 
 		print "hostperf|sysUpTime=".$sysUpTime." memSwapused=".$memSwapused." memGranted=".$memGranted." memActive=".$memActive." diskUsage=".$diskUsage." cpuUsagemhz=".$cpuUsagemhz." cpuUsage=".$cpuUsage." cpuReservedcapacity=".$cpuReservedcapacity."\n";
 	}

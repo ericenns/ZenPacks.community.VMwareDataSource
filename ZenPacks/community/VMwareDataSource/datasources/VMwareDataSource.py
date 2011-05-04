@@ -20,7 +20,7 @@ import cgi, time
 #Templates for the command
 vmwareGuestPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'guestperf:${here/id}' | tail -n1")
 vmwareHostPerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'hostperf:${dev/id}' | tail -n1")
-vmwareInterfacePerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/name} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'interfaceperf:${dev/id}:vmnic0' | tail -n1")
+vmwareInterfacePerfTemplate = ("/usr/bin/perl ${here/ZenPackManager/packs/ZenPacks.community.VMwareDataSource/path}/libexec/esxi_performance.pl --server ${dev/manageIp} --username ${dev/zVSphereUsername} --password '${dev/zVSpherePassword}' --options 'interfaceperf:${dev/id}:${here/id}' | tail -n1")
 
 class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 
