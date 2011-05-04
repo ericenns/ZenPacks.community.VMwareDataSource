@@ -157,7 +157,7 @@ class VMwareDataSource(RRDDataSource.SimpleRRDDataSource, ZenPackPersistence):
 		elif self.performanceSource == "VMwareHost":
 			cmd = vmwareHostPerfTemplate
 		elif self.performanceSource == "VMwareNic":
-			cmd = vmwareHostPerfTemplate
+			cmd = vmwareInterfacePerfTemplate
 		cmd = RRDDataSource.RRDDataSource.getCommand(self, context, cmd)
 		return cmd
 
